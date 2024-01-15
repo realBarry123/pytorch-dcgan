@@ -1,2 +1,2 @@
 # pytorch-dcgan
-Generative Adversarial Network Build With Pytorch
+Generative Adversarial Network Built With Pytorch
