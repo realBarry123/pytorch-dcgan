@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from IPython.display import HTML
 
-from model import weights_init
+from model import weights_init, Generator
 
 # go to image number 00
 
@@ -44,15 +44,6 @@ batch_size = 128
 # Spatial size of training images. All images will be resized to this
 #   size using a transformer.
 image_size = 64
-
-# Number of channels in the training images. For color images this is 3
-nc = 3
-
-# Size of z latent vector (i.e. size of generator input)
-nz = 100
-
-# Size of feature maps in generator
-ngf = 64
 
 # Size of feature maps in discriminator
 ndf = 64
@@ -94,3 +85,17 @@ plt.axis("off")
 plt.title("Training Images")
 plt.imshow(np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(), (1, 2, 0)))
 plt.show()
+
+# Create the generator
+netG = Generator(ngpu).to(device)
+
+# Handle multi-GPU if desired
+if (device.type == 'cuda') and (ngpu > 1):
+    netG = nn.DataParallel(netG, list(range(ngpu)))
+
+# Apply the ``weights_init`` function to randomly initialize all weights
+#  to ``mean=0``, ``stdev=0.02``.
+netG.apply(weights_init)
+
+# Print the model
+print(netG)

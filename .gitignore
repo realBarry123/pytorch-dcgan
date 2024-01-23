@@ -1,1 +1,3 @@
-data
+*.pyc
+*.jpg
+*.DS_Store
