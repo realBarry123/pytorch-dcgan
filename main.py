@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from IPython.display import HTML
 
-from model import weights_init, Generator
+from model import weights_init, Generator, Discriminator
 
 # go to image number 00
 
@@ -86,6 +86,7 @@ plt.title("Training Images")
 plt.imshow(np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(), (1, 2, 0)))
 plt.show()
 
+
 # Create the generator
 netG = Generator(ngpu).to(device)
 
@@ -99,3 +100,18 @@ netG.apply(weights_init)
 
 # Print the model
 print(netG)
+
+
+# Create the Discriminator
+netD = Discriminator(ngpu).to(device)
+
+# Handle multi-GPU if desired
+if (device.type == 'cuda') and (ngpu > 1):
+    netD = nn.DataParallel(netD, list(range(ngpu)))
+
+# Apply the ``weights_init`` function to randomly initialize all weights
+# like this: ``to mean=0, stdev=0.2``.
+netD.apply(weights_init)
+
+# Print the model
+print(netD)
