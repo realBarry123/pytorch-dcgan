@@ -20,6 +20,10 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from IPython.display import HTML
 
+from model import weights_init
+
+# go to image number 00
+
 # Set random seed for reproducibility
 manualSeed = 999
 # manualSeed = random.randint(1, 10000) # use if you want new results
@@ -32,7 +36,7 @@ torch.use_deterministic_algorithms(True)  # Needed for reproducible results
 dataroot = "data/celeba"
 
 # Number of workers for dataloader
-workers = 2
+workers = 0
 
 # Batch size during training
 batch_size = 128
@@ -89,3 +93,4 @@ plt.figure(figsize=(8,8))
 plt.axis("off")
 plt.title("Training Images")
 plt.imshow(np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(), (1, 2, 0)))
+plt.show()
