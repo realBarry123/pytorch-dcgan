@@ -65,7 +65,11 @@ class Generator(nn.Module):
         """
         return self.main(input)
 
+
 # ========== THE DISCRIMINATOR ==========
+
+# Size of feature maps in discriminator
+ndf = 64
 
 
 class Discriminator(nn.Module):
@@ -94,4 +98,9 @@ class Discriminator(nn.Module):
         )
 
     def forward(self, input):
+        """
+
+        :param input:
+        :return:
+        """
         return self.main(input)

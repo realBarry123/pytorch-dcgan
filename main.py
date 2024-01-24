@@ -41,12 +41,8 @@ workers = 0
 # Batch size during training
 batch_size = 128
 
-# Spatial size of training images. All images will be resized to this
-#   size using a transformer.
+# Spatial size of training images. All images will be resized to this size
 image_size = 64
-
-# Size of feature maps in discriminator
-ndf = 64
 
 # Number of training epochs
 num_epochs = 5
@@ -61,7 +57,7 @@ beta1 = 0.5
 ngpu = 1
 
 # We can use an image folder dataset the way we have it setup.
-# Create the dataset
+# Transform images to create the dataset
 dataset = dset.ImageFolder(
     root=dataroot,
     transform=transforms.Compose([
@@ -94,8 +90,7 @@ netG = Generator(ngpu).to(device)
 if (device.type == 'cuda') and (ngpu > 1):
     netG = nn.DataParallel(netG, list(range(ngpu)))
 
-# Apply the ``weights_init`` function to randomly initialize all weights
-#  to ``mean=0``, ``stdev=0.02``.
+# Apply the weights_init function to randomly initialize all weights to mean=0, stdev=0.02.
 netG.apply(weights_init)
 
 # Print the model
@@ -115,3 +110,22 @@ netD.apply(weights_init)
 
 # Print the model
 print(netD)
+
+
+# ========== TRAINING ==========
+
+
+# Initialize the ``BCELoss`` function
+criterion = nn.BCELoss()
+
+# Create batch of latent vectors that we will use to visualize the progression of the generator
+fixed_noise = torch.randn(64, nz, 1, 1, device=device)
+
+# Establish convention for real and fake labels during training
+real_label = 1.
+fake_label = 0.
+
+# Setup Adam optimizers for both G and D
+optimizerD = optim.Adam(netD.parameters(), lr=lr, betas=(beta1, 0.999))
+optimizerG = optim.Adam(netG.parameters(), lr=lr, betas=(beta1, 0.999))
+
