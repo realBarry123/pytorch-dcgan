@@ -45,7 +45,7 @@ batch_size = 128
 image_size = 64
 
 # Number of training epochs
-num_epochs = 5
+num_epochs = 1
 
 # Size of z latent vector (i.e. size of generator input)
 nz = 100
@@ -80,11 +80,13 @@ device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else 
 
 # Plot some training images
 real_batch = next(iter(dataloader))
+'''
 plt.figure(figsize=(8,8))
 plt.axis("off")
 plt.title("Training Images")
 plt.imshow(np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=2, normalize=True).cpu(), (1, 2, 0)))
-#plt.show()
+plt.show()
+'''
 
 
 # Create the generator
@@ -216,6 +218,9 @@ for epoch in range(num_epochs):
             img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
 
         iters += 1
+        
+torch.save(netD.state_dict(), "Models/netD.pkl")
+torch.save(netG.state_dict(), "Models/netG.pkl")
 
 fig = plt.figure(figsize=(8,8))
 plt.axis("off")
