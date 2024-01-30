@@ -69,6 +69,7 @@ dataset = dset.ImageFolder(
         transforms.CenterCrop(image_size),
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        transforms.RandomVerticalFlip(p=0.5),
     ])
 )
 # Create the dataloader
@@ -97,7 +98,8 @@ if (device.type == 'cuda') and (ngpu > 1):
     netG = nn.DataParallel(netG, list(range(ngpu)))
 
 # Apply the weights_init function to randomly initialize all weights to mean=0, stdev=0.02.
-netG.apply(weights_init)
+#netG.apply(weights_init)
+netG.load_state_dict(torch.load("Models/netG.pkl"))
 
 # Print the model
 print(netG)
@@ -112,7 +114,8 @@ if (device.type == 'cuda') and (ngpu > 1):
 
 # Apply the ``weights_init`` function to randomly initialize all weights
 # like this: ``to mean=0, stdev=0.2``.
-netD.apply(weights_init)
+#netD.apply(weights_init)
+netD.load_state_dict(torch.load("Models/netD.pkl"))
 
 # Print the model
 print(netD)
@@ -150,7 +153,7 @@ print("Starting Training Loop...")
 for epoch in range(num_epochs):
     # For each batch in the dataloader
     for i, data in enumerate(dataloader, 0):
-
+        if (i > 200): break
         ############################
         # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
         ###########################
