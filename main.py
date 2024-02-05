@@ -69,7 +69,10 @@ dataset = dset.ImageFolder(
         transforms.CenterCrop(image_size),
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-        transforms.RandomVerticalFlip(p=0.5),
+        transforms.RandomVerticalFlip(p=0.3),
+        transforms.ElasticTransform(alpha=100.0),
+        transforms.RandomInvert(p=0.3),
+        transforms.RandomSolarize(threshold=0.8, p=0.4),
     ])
 )
 # Create the dataloader
@@ -153,7 +156,7 @@ print("Starting Training Loop...")
 for epoch in range(num_epochs):
     # For each batch in the dataloader
     for i, data in enumerate(dataloader, 0):
-        if (i > 200): break
+        if (i%4 != 0): continue
         ############################
         # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
         ###########################
