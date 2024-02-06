@@ -54,6 +54,8 @@ beta1 = 0.5
 # Number of GPUs available. Use 0 for CPU mode.
 ngpu = 1
 
+device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
+
 
 # Create and load the generator
 netG = Generator(ngpu).to(device)
@@ -62,5 +64,18 @@ netG.load_state_dict(torch.load("Models/netG.pkl"))
 # Create and load the discriminator
 netD = Discriminator(ngpu).to(device)
 netD.load_state_dict(torch.load("Models/netD.pkl"))
+
+fixed_noise = torch.randn(64, nz, 1, 1, device=device)
+img_list = []
+
+fake = netG(fixed_noise).detach().cpu()
+img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+
+fig = plt.figure(figsize=(8,8))
+plt.axis("off")
+ims = [[plt.imshow(np.transpose(i,(1,2,0)), animated=True)] for i in img_list]
+#ani = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
+plt.show()
+#HTML(ani.to_jshtml())
 
 
