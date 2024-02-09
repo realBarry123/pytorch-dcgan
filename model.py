@@ -11,11 +11,11 @@ def weights_init(m):
     :param m:
     """
     classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        nn.init.normal_(m.weight.data, 0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        nn.init.normal_(m.weight.data, 1.0, 0.02)
-        nn.init.constant_(m.bias.data, 0)
+    if classname.find('Conv') != -1:  # find convolutional layer
+        nn.init.normal_(m.weight.data, 0.0, 0.02)  # randomly initialize weights
+    elif classname.find('BatchNorm') != -1:  # find batchnorm
+        nn.init.normal_(m.weight.data, 1.0, 0.02)  # randomly initialize weights
+        nn.init.constant_(tensor=m.bias.data, 0)  # set bias to 0
 
 
 # Number of channels in the training images. For color images this is 3
@@ -25,6 +25,7 @@ nc = 3
 nz = 100
 
 # Size of feature maps in generator
+# basically size of pictures in the generator
 ngf = 64
 
 # ========== THE GENERATOR ==========
@@ -36,8 +37,8 @@ class Generator(nn.Module):
         self.ngpu = ngpu
         self.main = nn.Sequential(
             # input is Z, going into a convolution
-            nn.ConvTranspose2d(nz, ngf * 8, 4, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 8),
+            nn.ConvTranspose2d(nz, ngf * 8, 4, 1, 0, bias=False),  # like reversed convolution: each pixel becomes multiple
+            nn.BatchNorm2d(ngf * 8),  # batchnorm normalizes the activations coming through the network
             nn.ReLU(True),
             # state size. ``(ngf*8) x 4 x 4``
             nn.ConvTranspose2d(ngf * 8, ngf * 4, 4, 2, 1, bias=False),
@@ -60,15 +61,16 @@ class Generator(nn.Module):
     def forward(self, input):
         """
 
-        :param input:
+        :param input: noise
         :return: the output of the generator
         """
-        return self.main(input)
+        return self.main(input)  # runs the predefined self.main
 
 
 # ========== THE DISCRIMINATOR ==========
 
 # Size of feature maps in discriminator
+# basically size of images fed into the discriminator
 ndf = 64
 
 
@@ -78,7 +80,7 @@ class Discriminator(nn.Module):
         self.ngpu = ngpu
         self.main = nn.Sequential(
             # input is ``(nc) x 64 x 64``
-            nn.Conv2d(nc, ndf, 4, 2, 1, bias=False),
+            nn.Conv2d(nc, ndf, 4, 2, 1, bias=False),  # convolutional layer
             nn.LeakyReLU(0.2, inplace=True),
             # state size. ``(ndf) x 32 x 32``
             nn.Conv2d(ndf, ndf * 2, 4, 2, 1, bias=False),
