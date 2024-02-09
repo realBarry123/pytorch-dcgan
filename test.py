@@ -1,26 +1,14 @@
 
-import argparse
-import os
 import random
 import torch
-import torch.nn as nn
-import torch.nn.parallel
-import torch.optim as optim
-import torch.utils.data
-import torchvision.datasets as dset
-import torchvision.transforms as transforms
 import torchvision.utils as vutils
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from IPython.display import HTML
 
 from model import weights_init, Generator, Discriminator
 
-# go to image number 00
-
 # Set random seed for reproducibility
-manualSeed = 999
+manualSeed = 666
 # manualSeed = random.randint(1, 10000) # use if you want new results
 print("Random Seed: ", manualSeed)
 random.seed(manualSeed)
@@ -39,21 +27,13 @@ batch_size = 128
 # Spatial size of training images. All images will be resized to this size
 image_size = 64
 
-# Number of training epochs
-num_epochs = 1
-
 # Size of z latent vector (i.e. size of generator input)
 nz = 100
 
-# Learning rate for optimizers
-lr = 0.0002
-
-# Beta1 hyperparameter for Adam optimizers
-beta1 = 0.5
-
 # Number of GPUs available. Use 0 for CPU mode.
-ngpu = 1
+ngpu = 0
 
+# For if you have GPUs
 device = torch.device("cuda:0" if (torch.cuda.is_available() and ngpu > 0) else "cpu")
 
 
@@ -65,17 +45,16 @@ netG.load_state_dict(torch.load("Models/netG.pkl"))
 netD = Discriminator(ngpu).to(device)
 netD.load_state_dict(torch.load("Models/netD.pkl"))
 
-fixed_noise = torch.randn(64, nz, 1, 1, device=device)
+fixed_noise = torch.randn(64, nz, 1, 1, device=device)  # generate noise 
 img_list = []
 
-fake = netG(fixed_noise).detach().cpu()
-img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+fake = netG(fixed_noise).detach().cpu()  # generate images
+img_list.append(vutils.make_grid(fake, padding=2, normalize=True))  #add images to list
 
+# show images
 fig = plt.figure(figsize=(8,8))
 plt.axis("off")
 ims = [[plt.imshow(np.transpose(i,(1,2,0)), animated=True)] for i in img_list]
-#ani = animation.ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
 plt.show()
-#HTML(ani.to_jshtml())
 
 

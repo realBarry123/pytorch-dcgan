@@ -8,7 +8,6 @@ import argparse
 import os
 import random
 import torch
-import torch.nn as nn
 import torch.nn.parallel
 import torch.optim as optim
 import torch.utils.data
@@ -69,10 +68,10 @@ dataset = dset.ImageFolder(
         transforms.CenterCrop(image_size),
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-        transforms.RandomVerticalFlip(p=0.3),
-        transforms.ElasticTransform(alpha=100.0),
-        transforms.RandomInvert(p=0.3),
-        transforms.RandomSolarize(threshold=0.8, p=0.4),
+        #transforms.RandomVerticalFlip(p=0.3),
+        #transforms.ElasticTransform(alpha=100.0),
+        #transforms.RandomInvert(p=0.3),
+        #transforms.RandomSolarize(threshold=0.8, p=0.4),
     ])
 )
 # Create the dataloader
@@ -156,7 +155,7 @@ print("Starting Training Loop...")
 for epoch in range(num_epochs):
     # For each batch in the dataloader
     for i, data in enumerate(dataloader, 0):
-        if (i%4 != 0): continue
+        if (i%60 != 0): continue
         ############################
         # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
         ###########################
