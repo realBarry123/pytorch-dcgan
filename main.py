@@ -155,11 +155,20 @@ print("Starting Training Loop...")
 for epoch in range(num_epochs):
     # For each batch in the dataloader
     for i, data in enumerate(dataloader, 0):
+
+        # some filter for if i want to train on only part of the dataset
         if (i%60 != 0): continue
+
+        
         ############################
         # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
+        # D() is bigger -- real image
+        # D() is smaller -- fake image
+        # make sure D(x) is bigger (real) and D(G(z)) is smaller (fake)
+        # tldr: maximize ability to distinguish real and fake
         ###########################
-        ## Train with all-real batch
+        
+        # Train with real images
         netD.zero_grad()
         # Format batch
         real_cpu = data[0].to(device)
@@ -173,8 +182,8 @@ for epoch in range(num_epochs):
         errD_real.backward()
         D_x = output.mean().item()
 
-        ## Train with all-fake batch
-        # Generate batch of latent vectors
+        # Train with fake images
+        # Generate batch of latent vectors (noise
         noise = torch.randn(b_size, nz, 1, 1, device=device)
         # Generate fake image batch with G
         fake = netG(noise)
@@ -186,14 +195,20 @@ for epoch in range(num_epochs):
         # Calculate the gradients for this batch, accumulated (summed) with previous gradients
         errD_fake.backward()
         D_G_z1 = output.mean().item()
+        
         # Compute error of D as sum over the fake and the real batches
-        errD = errD_real + errD_fake
+        errD = errD_real + errD_fake  # D(x) + D(G(z))
         # Update D
         optimizerD.step()
 
+        
         ############################
         # (2) Update G network: maximize log(D(G(z)))
+        # D() is bigger -- real
+        # objective: trick D() into thinking G(z) is real -> maximize D(G(z))
+        # tldr: maximize realisticness of generated images
         ###########################
+        
         netG.zero_grad()
         label.fill_(real_label)  # fake labels are real for generator cost
         # Since we just updated D, perform another forward pass of all-fake batch through D
@@ -216,7 +231,7 @@ for epoch in range(num_epochs):
         G_losses.append(errG.item())
         D_losses.append(errD.item())
 
-        # Check how the generator is doing by saving G's output on fixed_noise
+        # Save G's output in img_list so we can see the cool animation afterwards
         if (iters % 500 == 0) or ((epoch == num_epochs-1) and (i == len(dataloader)-1)):
             with torch.no_grad():
                 fake = netG(fixed_noise).detach().cpu()
