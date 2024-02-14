@@ -61,8 +61,8 @@ class Generator(nn.Module):
     def forward(self, input):
         """
 
-        :param input: noise
-        :return: the output of the generator
+        :param input: z latent vector (noise)
+        :return: the output of the generator (hopefully it looks like a face)
         """
         return self.main(input)  # runs the predefined self.main
 
@@ -102,7 +102,7 @@ class Discriminator(nn.Module):
     def forward(self, input):
         """
 
-        :param input:
-        :return:
+        :param input: image to classify as real or fake
+        :return: decision on whether image is real or fake
         """
         return self.main(input)

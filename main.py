@@ -157,7 +157,7 @@ for epoch in range(num_epochs):
     for i, data in enumerate(dataloader, 0):
 
         # some filter for if i want to train on only part of the dataset
-        if (i%60 != 0): continue
+        if (i%3 != 0): continue
 
         
         ############################
@@ -167,22 +167,27 @@ for epoch in range(num_epochs):
         # make sure D(x) is bigger (real) and D(G(z)) is smaller (fake)
         # tldr: maximize ability to distinguish real and fake
         ###########################
+
         
-        # Train with real images
+        ## Train with real images
+        
         netD.zero_grad()
         # Format batch
         real_cpu = data[0].to(device)
         b_size = real_cpu.size(0)
         label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
-        # Forward pass real batch through D
-        output = netD(real_cpu).view(-1)
-        # Calculate loss on all-real batch
-        errD_real = criterion(output, label)
+
+        output = netD(real_cpu).view(-1)  # Forward pass real batch through D
+        
+        errD_real = criterion(output, label)  # Calculate loss on all-real batch
+        
         # Calculate gradients for D in backward pass
         errD_real.backward()
         D_x = output.mean().item()
 
-        # Train with fake images
+
+        ## Train with fake images
+        
         # Generate batch of latent vectors (noise
         noise = torch.randn(b_size, nz, 1, 1, device=device)
         # Generate fake image batch with G
@@ -190,6 +195,7 @@ for epoch in range(num_epochs):
         label.fill_(fake_label)
         # Classify all fake batch with D
         output = netD(fake.detach()).view(-1)
+        
         # Calculate D's loss on the all-fake batch
         errD_fake = criterion(output, label)
         # Calculate the gradients for this batch, accumulated (summed) with previous gradients
