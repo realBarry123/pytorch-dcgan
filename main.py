@@ -9,6 +9,7 @@ import os
 import random
 import torch
 import torch.nn.parallel
+import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
 import torchvision.datasets as dset
@@ -68,10 +69,10 @@ dataset = dset.ImageFolder(
         transforms.CenterCrop(image_size),
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-        #transforms.RandomVerticalFlip(p=0.3),
+        transforms.RandomVerticalFlip(p=0.2),
         #transforms.ElasticTransform(alpha=100.0),
         #transforms.RandomInvert(p=0.3),
-        #transforms.RandomSolarize(threshold=0.8, p=0.4),
+        transforms.RandomSolarize(threshold=0.9, p=0.3),
     ])
 )
 # Create the dataloader
@@ -99,9 +100,9 @@ netG = Generator(ngpu).to(device)
 if (device.type == 'cuda') and (ngpu > 1):
     netG = nn.DataParallel(netG, list(range(ngpu)))
 
-# Apply the weights_init function to randomly initialize all weights to mean=0, stdev=0.02.
-#netG.apply(weights_init)
-netG.load_state_dict(torch.load("Models/netG.pkl"))
+# Uncomment if starting out: apply the weights_init function to randomly initialize all weights to mean=0, stdev=0.02.
+# netG.apply(weights_init)
+netG.load_state_dict(torch.load("Models/netG.pkl"))  # load netG weights
 
 # Print the model
 print(netG)
@@ -114,10 +115,9 @@ netD = Discriminator(ngpu).to(device)
 if (device.type == 'cuda') and (ngpu > 1):
     netD = nn.DataParallel(netD, list(range(ngpu)))
 
-# Apply the ``weights_init`` function to randomly initialize all weights
-# like this: ``to mean=0, stdev=0.2``.
-#netD.apply(weights_init)
-netD.load_state_dict(torch.load("Models/netD.pkl"))
+# Uncomment if starting out: apply the ``weights_init`` function to randomly initialize all weights
+# netD.apply(weights_init)
+netD.load_state_dict(torch.load("Models/netD.pkl"))  # load netD weights
 
 # Print the model
 print(netD)
@@ -134,8 +134,8 @@ criterion = nn.BCELoss()
 fixed_noise = torch.randn(64, nz, 1, 1, device=device)
 
 # Establish convention for real and fake labels during training
-real_label = 1.
-fake_label = 0.
+real_label = 1.0
+fake_label = 0.0
 
 # Setup Adam optimizers for both G and D
 optimizerD = optim.Adam(netD.parameters(), lr=lr, betas=(beta1, 0.999))
@@ -157,7 +157,7 @@ for epoch in range(num_epochs):
     for i, data in enumerate(dataloader, 0):
 
         # some filter for if i want to train on only part of the dataset
-        if (i%3 != 0): continue
+        if (i%4 != 0): continue
 
         
         ############################
@@ -219,11 +219,13 @@ for epoch in range(num_epochs):
         label.fill_(real_label)  # fake labels are real for generator cost
         # Since we just updated D, perform another forward pass of all-fake batch through D
         output = netD(fake).view(-1)
+        
         # Calculate G's loss based on this output
         errG = criterion(output, label)
         # Calculate gradients for G
         errG.backward()
         D_G_z2 = output.mean().item()
+        
         # Update G
         optimizerG.step()
 
@@ -244,7 +246,8 @@ for epoch in range(num_epochs):
             img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
 
         iters += 1
-        
+
+
 torch.save(netD.state_dict(), "Models/netD.pkl")
 torch.save(netG.state_dict(), "Models/netG.pkl")
 

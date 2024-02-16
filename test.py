@@ -7,9 +7,8 @@ import matplotlib.pyplot as plt
 
 from model import weights_init, Generator, Discriminator
 
-# Set random seed for reproducibility
-manualSeed = 666
-# manualSeed = random.randint(1, 10000) # use if you want new results
+manualSeed = random.randint(1, 10000) # set random seed
+
 print("Random Seed: ", manualSeed)
 random.seed(manualSeed)
 torch.manual_seed(manualSeed)
