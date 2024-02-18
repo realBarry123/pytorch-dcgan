@@ -103,6 +103,6 @@ class Discriminator(nn.Module):
         """
 
         :param input: image to classify as real or fake
-        :return: decision on whether image is real or fake
+        :return: decision on whether image is real(1) or fake(0)
         """
         return self.main(input)

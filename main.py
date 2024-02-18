@@ -162,8 +162,8 @@ for epoch in range(num_epochs):
         
         ############################
         # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
-        # D() is bigger -- real image
-        # D() is smaller -- fake image
+        # D() is 1 -- real image
+        # D() is 0 -- fake image
         # make sure D(x) is bigger (real) and D(G(z)) is smaller (fake)
         # tldr: maximize ability to distinguish real and fake
         ###########################
@@ -183,7 +183,7 @@ for epoch in range(num_epochs):
         
         # Calculate gradients for D in backward pass
         errD_real.backward()
-        D_x = output.mean().item()
+        D_x = output.mean().item()  # only used for display
 
 
         ## Train with fake images
@@ -200,7 +200,8 @@ for epoch in range(num_epochs):
         errD_fake = criterion(output, label)
         # Calculate the gradients for this batch, accumulated (summed) with previous gradients
         errD_fake.backward()
-        D_G_z1 = output.mean().item()
+        D_G_z1 = output.mean().item()  # only used for display
+
         
         # Compute error of D as sum over the fake and the real batches
         errD = errD_real + errD_fake  # D(x) + D(G(z))
