@@ -69,10 +69,10 @@ dataset = dset.ImageFolder(
         transforms.CenterCrop(image_size),
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-        transforms.RandomVerticalFlip(p=0.2),
+        #transforms.RandomVerticalFlip(p=0.2),
         #transforms.ElasticTransform(alpha=100.0),
         #transforms.RandomInvert(p=0.3),
-        transforms.RandomSolarize(threshold=0.9, p=0.3),
+        #transforms.RandomSolarize(threshold=0.9, p=0.3),
     ])
 )
 # Create the dataloader
@@ -157,7 +157,7 @@ for epoch in range(num_epochs):
     for i, data in enumerate(dataloader, 0):
 
         # some filter for if i want to train on only part of the dataset
-        if (i%4 != 0): continue
+        if (i%20 != 0): continue
 
         
         ############################
@@ -174,16 +174,19 @@ for epoch in range(num_epochs):
         netD.zero_grad()
         # Format batch
         real_cpu = data[0].to(device)
+        real_cpu_flipped = torch.flip(data[0], [0, 1]).to(device)
         b_size = real_cpu.size(0)
         label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
 
         output = netD(real_cpu).view(-1)  # Forward pass real batch through D
+        output_flipped = netD(real_cpu_flipped).view(-1)
         
-        errD_real = criterion(output, label)  # Calculate loss on all-real batch
+        errD_real = criterion(output, label) * criterion(output_flipped, label)  # Calculate loss on all-real batch
         
         # Calculate gradients for D in backward pass
         errD_real.backward()
         D_x = output.mean().item()  # only used for display
+
 
 
         ## Train with fake images
@@ -195,6 +198,7 @@ for epoch in range(num_epochs):
         label.fill_(fake_label)
         # Classify all fake batch with D
         output = netD(fake.detach()).view(-1)
+        
         
         # Calculate D's loss on the all-fake batch
         errD_fake = criterion(output, label)
