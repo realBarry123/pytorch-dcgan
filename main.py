@@ -178,12 +178,14 @@ for epoch in range(num_epochs):
         label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
 
         output = netD(real_cpu).view(-1)  # Forward pass real batch through D
+
         
         errD_real = criterion(output, label)  # Calculate loss on all-real batch
         
         # Calculate gradients for D in backward pass
         errD_real.backward()
         D_x = output.mean().item()  # only used for display
+
 
 
         ## Train with fake images
@@ -195,6 +197,7 @@ for epoch in range(num_epochs):
         label.fill_(fake_label)
         # Classify all fake batch with D
         output = netD(fake.detach()).view(-1)
+        
         
         # Calculate D's loss on the all-fake batch
         errD_fake = criterion(output, label)
