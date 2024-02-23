@@ -161,7 +161,7 @@ for epoch in range(num_epochs):
     for i, data in enumerate(dataloader, 0):
 
         # some filter for if i want to train on only part of the dataset
-        if (i%2 != 0): continue
+        if (i%10 != 0): continue
 
         
         ############################
@@ -185,7 +185,7 @@ for epoch in range(num_epochs):
         output = netD(real_cpu).view(-1)  # Forward pass real batch through D
         output_flipped = netD(real_cpu_flipped).view(-1)
         
-        errD_real = criterion(output, label) * criterion(output_flipped, label)  # Calculate loss on all-real batch
+        errD_real = criterion(output, label) + criterion(output_flipped, label)  # Calculate loss on all-real batch
         
         # Calculate gradients for D in backward pass
         errD_real.backward()
