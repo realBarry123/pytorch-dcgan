@@ -100,9 +100,12 @@ netG = Generator(ngpu).to(device)
 if (device.type == 'cuda') and (ngpu > 1):
     netG = nn.DataParallel(netG, list(range(ngpu)))
 
-# Uncomment if starting out: apply the weights_init function to randomly initialize all weights to mean=0, stdev=0.02.
-# netG.apply(weights_init)
-netG.load_state_dict(torch.load("Models/netG.pkl"))  # load netG weights
+
+try:
+    netG.load_state_dict(torch.load("Models/netG.pkl"))  # load netG weights
+except:
+    netG.apply(weights_init)
+
 
 # Print the model
 print(netG)
@@ -115,9 +118,10 @@ netD = Discriminator(ngpu).to(device)
 if (device.type == 'cuda') and (ngpu > 1):
     netD = nn.DataParallel(netD, list(range(ngpu)))
 
-# Uncomment if starting out: apply the ``weights_init`` function to randomly initialize all weights
-# netD.apply(weights_init)
-netD.load_state_dict(torch.load("Models/netD.pkl"))  # load netD weights
+try:
+    netD.load_state_dict(torch.load("Models/netD.pkl"))  # load netD weights
+except:
+    netD.apply(weights_init)
 
 # Print the model
 print(netD)
@@ -157,7 +161,7 @@ for epoch in range(num_epochs):
     for i, data in enumerate(dataloader, 0):
 
         # some filter for if i want to train on only part of the dataset
-        if (i%20 != 0): continue
+        if (i%2 != 0): continue
 
         
         ############################

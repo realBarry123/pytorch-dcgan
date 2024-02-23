@@ -15,7 +15,7 @@ def weights_init(m):
         nn.init.normal_(m.weight.data, 0.0, 0.02)  # randomly initialize weights
     elif classname.find('BatchNorm') != -1:  # find batchnorm
         nn.init.normal_(m.weight.data, 1.0, 0.02)  # randomly initialize weights
-        nn.init.constant_(tensor=m.bias.data, bias=0)  # set bias to 0
+        nn.init.constant_(tensor=m.bias.data, val=0)  # set bias to 0
 
 
 # Number of channels in the training images. For color images this is 3
