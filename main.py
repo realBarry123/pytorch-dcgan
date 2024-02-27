@@ -132,7 +132,7 @@ print(netD)
 # Define lots of stuff
 
 # Initialize the ``BCELoss`` function
-criterion = nn.BCELoss()
+BCELoss = nn.BCELoss()
 
 # Create batch of latent vectors that we will use to visualize the progression of the generator
 fixed_noise = torch.randn(64, nz, 1, 1, device=device)
@@ -161,7 +161,7 @@ for epoch in range(num_epochs):
     for i, data in enumerate(dataloader, 0):
 
         # some filter for if i want to train on only part of the dataset
-        if (i%10 != 0): continue
+        if (i%2 != 0): continue
 
         
         ############################
@@ -171,21 +171,21 @@ for epoch in range(num_epochs):
         # make sure D(x) is bigger (real) and D(G(z)) is smaller (fake)
         # tldr: maximize ability to distinguish real and fake
         ###########################
-
+        
         
         ## Train with real images
         
         netD.zero_grad()
         # Format batch
         real_cpu = data[0].to(device)
-        real_cpu_flipped = torch.flip(data[0], [0, 1]).to(device)
+        real_cpu_flipped = transforms.functional.vflip(data[0]).to(device)
         b_size = real_cpu.size(0)
-        label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
+        label = torch.full((b_size,), real_label, dtype=torch.float, device=device)  # Create a tensor for labels
 
         output = netD(real_cpu).view(-1)  # Forward pass real batch through D
         output_flipped = netD(real_cpu_flipped).view(-1)
         
-        errD_real = criterion(output, label) + criterion(output_flipped, label)  # Calculate loss on all-real batch
+        errD_real = BCELoss(output, label)  # Calculate loss on all-real batch
         
         # Calculate gradients for D in backward pass
         errD_real.backward()
@@ -199,13 +199,16 @@ for epoch in range(num_epochs):
         noise = torch.randn(b_size, nz, 1, 1, device=device)
         # Generate fake image batch with G
         fake = netG(noise)
+        fake_flipped = transforms.functional.vflip(fake)
         label.fill_(fake_label)
         # Classify all fake batch with D
         output = netD(fake.detach()).view(-1)
+        output_flipped = netD(fake_flipped.detach()).view(-1)
         
-        
+        errD_fake = torch.tensor([BCELoss(output, label), BCELoss(output_flipped, label)])
+        errD_fake.requires_grad_()
         # Calculate D's loss on the all-fake batch
-        errD_fake = criterion(output, label)
+        errD_fake = torch.max(BCELoss(output, label), BCELoss(output_flipped, label))
         # Calculate the gradients for this batch, accumulated (summed) with previous gradients
         errD_fake.backward()
         D_G_z1 = output.mean().item()  # only used for display
@@ -230,7 +233,7 @@ for epoch in range(num_epochs):
         output = netD(fake).view(-1)
         
         # Calculate G's loss based on this output
-        errG = criterion(output, label)
+        errG = BCELoss(output, label)
         # Calculate gradients for G
         errG.backward()
         D_G_z2 = output.mean().item()
@@ -243,6 +246,7 @@ for epoch in range(num_epochs):
             print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
                   % (epoch, num_epochs, i, len(dataloader),
                      errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
+
 
         # Save Losses for plotting later
         G_losses.append(errG.item())
