@@ -102,7 +102,10 @@ if (device.type == 'cuda') and (ngpu > 1):
 
 # Uncomment if starting out: apply the weights_init function to randomly initialize all weights to mean=0, stdev=0.02.
 # netG.apply(weights_init)
-netG.load_state_dict(torch.load("Models/netG.pkl"))  # load netG weights
+try:
+    netG.load_state_dict(torch.load("Models/netG.pkl"))  # load netG weights
+except:
+    netG.apply(weights_init)
 
 # Print the model
 print(netG)
@@ -117,7 +120,10 @@ if (device.type == 'cuda') and (ngpu > 1):
 
 # Uncomment if starting out: apply the ``weights_init`` function to randomly initialize all weights
 # netD.apply(weights_init)
-netD.load_state_dict(torch.load("Models/netD.pkl"))  # load netD weights
+try:
+    netD.load_state_dict(torch.load("Models/netD.pkl"))  # load netG weights
+except:
+    netD.apply(weights_init)
 
 # Print the model
 print(netD)
