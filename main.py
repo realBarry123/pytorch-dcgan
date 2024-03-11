@@ -69,6 +69,7 @@ dataset = dset.ImageFolder(
         transforms.CenterCrop(image_size),
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        transforms.RandomHorizontalFlip(p=0.5),
         #transforms.RandomVerticalFlip(p=0.2),
         #transforms.ElasticTransform(alpha=100.0),
         #transforms.RandomInvert(p=0.3),
@@ -163,7 +164,7 @@ for epoch in range(num_epochs):
     for i, data in enumerate(dataloader, 0):
 
         # some filter for if i want to train on only part of the dataset
-        if (i%3 != 0): continue
+        if (i%1 != 0): continue
 
         
         ############################
